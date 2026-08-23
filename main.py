@@ -310,6 +310,28 @@ async def serve_ui():
                 padding: 0.2rem 0.5rem;
                 border-radius: 4px;
             }
+
+            .disclaimer-banner {
+                background: rgba(234, 179, 8, 0.12);
+                border: 1px solid rgba(234, 179, 8, 0.3);
+                color: #fef08a;
+                font-size: 0.8rem;
+                padding: 0.6rem 0.75rem;
+                border-radius: 8px;
+                margin-top: 0.75rem;
+                text-align: center;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.4rem;
+            }
+
+            .disclaimer-banner code {
+                background: rgba(0, 0, 0, 0.3);
+                padding: 0.1rem 0.3rem;
+                border-radius: 4px;
+                font-family: monospace;
+            }
         </style>
     </head>
     <body>
@@ -330,8 +352,12 @@ async def serve_ui():
                 <div class="upload-area" id="dropZone" onclick="document.getElementById('fileInput').click()">
                     <span class="upload-icon">📷</span>
                     <p style="font-weight: 500;">Click to upload or drag & drop</p>
-                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.25rem;">Supports JPG, PNG, WEBP</p>
-                    <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.25rem;">Supported formats: .jpg, .jpeg, .png, .bmp, .webp</p>
+                    <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.bmp,.webp,image/jpeg,image/png,image/bmp,image/webp" style="display: none;" onchange="handleFileSelect(event)">
+                </div>
+
+                <div class="disclaimer-banner">
+                    ⚠️ <span><strong>Format Notice:</strong> Only <code>.jpg</code>, <code>.jpeg</code>, <code>.png</code>, <code>.bmp</code>, and <code>.webp</code> formats are supported.</span>
                 </div>
 
                 <div class="controls">
@@ -371,14 +397,24 @@ async def serve_ui():
 
         <script>
             let selectedFile = null;
+            const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'bmp', 'webp'];
+
+            function validateAndSetFile(file) {
+                if (!file) return false;
+                const ext = file.name.split('.').pop().toLowerCase();
+                if (!ALLOWED_EXTENSIONS.includes(ext)) {
+                    alert(`Unsupported file format (.${ext})!\n\nPlease upload an image file in .jpg, .jpeg, .png, .bmp, or .webp format.`);
+                    return false;
+                }
+                selectedFile = file;
+                document.getElementById('fileStatus').innerText = file.name;
+                document.getElementById('dropZone').style.borderColor = '#10b981';
+                return true;
+            }
 
             function handleFileSelect(e) {
                 const file = e.target.files[0];
-                if (file) {
-                    selectedFile = file;
-                    document.getElementById('fileStatus').innerText = file.name;
-                    document.getElementById('dropZone').style.borderColor = '#10b981';
-                }
+                validateAndSetFile(file);
             }
 
             const dropZone = document.getElementById('dropZone');
@@ -400,9 +436,7 @@ async def serve_ui():
                 const dt = e.dataTransfer;
                 const files = dt.files;
                 if (files.length > 0) {
-                    selectedFile = files[0];
-                    document.getElementById('fileStatus').innerText = selectedFile.name;
-                    document.getElementById('dropZone').style.borderColor = '#10b981';
+                    validateAndSetFile(files[0]);
                 }
             });
 

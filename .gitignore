@@ -12,8 +12,10 @@ __pycache__/
 # Output & Temp Folders
 output_results/
 .DS_Store
+FASTAPI_EXPLAINED.md
 
 # IDE / Editor Files
 .vscode/
 .idea/
+
 
